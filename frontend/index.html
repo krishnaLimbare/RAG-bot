@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyBot — AI Study Assistant</title>
+    <meta name="description"
+        content="AI-powered study assistant with RAG, web research, quizzes, and flashcard generation">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Marked.js for Markdown rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+
+<body>
+
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fas fa-brain"></i>
+                <span>StudyBot</span>
+            </div>
+        </div>
+
+        <ul class="nav-links">
+            <li>
+                <a href="#chat" class="nav-link active" data-page="chat" id="nav-chat">
+                    <i class="fas fa-comments"></i>
+                    <span>Chat</span>
+                </a>
+            </li>
+            <li>
+                <a href="#upload" class="nav-link" data-page="upload" id="nav-upload">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <span>Upload</span>
+                </a>
+            </li>
+            <li>
+                <a href="#research" class="nav-link" data-page="research" id="nav-research">
+                    <i class="fas fa-globe-americas"></i>
+                    <span>Research</span>
+                </a>
+            </li>
+            <li>
+                <a href="#quiz" class="nav-link" data-page="quiz" id="nav-quiz">
+                    <i class="fas fa-clipboard-check"></i>
+                    <span>Quiz</span>
+                </a>
+            </li>
+            <li>
+                <a href="#flashcards" class="nav-link" data-page="flashcards" id="nav-flashcards">
+                    <i class="fas fa-layer-group"></i>
+                    <span>Flashcards</span>
+                </a>
+            </li>
+        </ul>
+
+        <div class="sidebar-chats">
+            <div class="sidebar-chats-header">Recent Chats</div>
+            <div id="sidebar-chats-list">
+                <!-- Loaded dynamically -->
+            </div>
+        </div>
+
+        <div class="sidebar-footer">
+            <div class="sidebar-user" id="profile-toggle" title="View Profile">
+                <i class="fas fa-user-circle"></i>
+                <span id="user-display-name">User</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="main-content" id="main-content">
+
+        <!-- ═══════════════════ PROFILE PAGE ═══════════════════ -->
+        <section class="page" id="page-profile">
+            <div class="page-header">
+                <h1><i class="fas fa-user-cog"></i> Profile</h1>
+            </div>
+
+            <div class="profile-page-card glass-card">
+                <div class="profile-avatar">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+                <div class="profile-info">
+                    <div class="form-group">
+                        <label>Name</label>
+                        <input type="text" id="profile-name" placeholder="Your name">
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="profile-email" disabled placeholder="your@email.com">
+                        <small style="color:var(--text-muted);font-size:0.75rem;">Email cannot be changed</small>
+                    </div>
+                    <button class="btn btn-primary" id="profile-save-btn">
+                        <i class="fas fa-save"></i> Save Changes
+                    </button>
+                </div>
+            </div>
+
+            <div class="profile-danger-zone glass-card" style="margin-top:20px;">
+                <h3 style="color:var(--danger);margin-bottom:12px;"><i class="fas fa-sign-out-alt"></i> Session</h3>
+                <p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:16px;">Log out of your StudyBot
+                    account.</p>
+                <button class="btn btn-danger" id="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i> Log Out
+                </button>
+            </div>
+        </section>
+
+        <!-- ═══════════════════ CHAT PAGE ═══════════════════ -->
+        <section class="page active" id="page-chat">
+            <div class="page-header">
+                <h1><i class="fas fa-comments"></i> Study Chat</h1>
+                <div class="header-actions">
+                    <button class="btn btn-ghost" id="clear-chat-btn" title="Clear chat history">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="chat-container" id="chat-container">
+                <div class="chat-messages" id="chat-messages">
+                    <div class="welcome-message">
+                        <div class="welcome-icon"><i class="fas fa-graduation-cap"></i></div>
+                        <h2>Welcome to StudyBot</h2>
+                        <p>Upload your study materials, ask questions, and I'll help you learn.</p>
+                        <div class="welcome-tips">
+                            <div class="tip"><i class="fas fa-lightbulb"></i> <strong>Chat</strong> — Ask questions
+                                and get explanations</div>
+                            <div class="tip"><i class="fas fa-clipboard-check"></i> <strong>Quiz</strong> — Test
+                                yourself in the Quiz tab</div>
+                            <div class="tip"><i class="fas fa-layer-group"></i> <strong>Flashcards</strong> — Generate
+                                study cards</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chat-input-area">
+                    <div class="chat-input-wrapper">
+                        <textarea id="chat-input" placeholder="Ask a question about your study materials..."
+                            rows="1"></textarea>
+                        <button class="send-btn" id="send-btn" title="Send message">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                    <p class="chat-hint">Press <kbd>Enter</kbd> to send, <kbd>Shift+Enter</kbd> for new line</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════════════════ UPLOAD PAGE ═══════════════════ -->
+        <section class="page" id="page-upload">
+            <div class="page-header">
+                <h1><i class="fas fa-cloud-upload-alt"></i> Upload Documents</h1>
+            </div>
+
+            <div class="upload-area" id="upload-area">
+                <div class="upload-dropzone" id="upload-dropzone">
+                    <div class="dropzone-content">
+                        <i class="fas fa-file-pdf dropzone-icon"></i>
+                        <h3>Drag & drop your PDFs here</h3>
+                        <p>or click to browse files</p>
+                        <input type="file" id="file-input" accept=".pdf" multiple hidden>
+                    </div>
+                    <div class="upload-progress" id="upload-progress" style="display:none;">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progress-fill"></div>
+                        </div>
+                        <p class="progress-text" id="progress-text">Processing...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="documents-section">
+                <h2><i class="fas fa-folder-open"></i> Your Documents</h2>
+                <div class="documents-list" id="documents-list">
+                    <div class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <p>No documents uploaded yet</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════════════════ RESEARCH PAGE ═══════════════════ -->
+        <section class="page" id="page-research">
+            <div class="page-header">
+                <h1><i class="fas fa-globe-americas"></i> Web Research</h1>
+            </div>
+
+            <div class="research-input-area">
+                <div class="research-input-wrapper">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="research-input" placeholder="Enter a topic to research...">
+                    <button class="btn btn-primary" id="research-btn">
+                        <i class="fas fa-search"></i> Research
+                    </button>
+                </div>
+            </div>
+
+            <div class="research-results" id="research-results">
+                <div class="empty-state">
+                    <i class="fas fa-satellite-dish"></i>
+                    <p>Enter a topic above to search the web for study materials</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════════════════ QUIZ PAGE ═══════════════════ -->
+        <section class="page" id="page-quiz">
+            <div class="page-header">
+                <h1><i class="fas fa-clipboard-check"></i> MCQ Quiz</h1>
+            </div>
+
+            <!-- Generate section -->
+            <div class="quiz-generate glass-card" id="quiz-generate-area">
+                <h3><i class="fas fa-play-circle"></i> Start a Quiz</h3>
+                <p class="quiz-subtitle">Enter a topic and test your knowledge with multiple-choice questions!</p>
+                <div class="generate-form">
+                    <input type="text" id="quiz-topic-input"
+                        placeholder="Enter a topic (e.g., Python Variables, World War II)">
+                    <div class="generate-options">
+                        <label>
+                            <span>Questions:</span>
+                            <select id="quiz-count">
+                                <option value="5">5</option>
+                                <option value="10" selected>10</option>
+                                <option value="15">15</option>
+                                <option value="20">20</option>
+                            </select>
+                        </label>
+                        <button class="btn btn-primary" id="quiz-generate-btn">
+                            <i class="fas fa-play"></i> Start Quiz
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active quiz area -->
+            <div id="quiz-active-area" style="display:none;">
+                <div class="quiz-active-header">
+                    <div>
+                        <h3 id="quiz-active-title"></h3>
+                        <span class="quiz-active-badge" id="quiz-active-count"></span>
+                    </div>
+                    <button class="btn btn-ghost" id="quiz-back-btn"><i class="fas fa-times"></i> Cancel</button>
+                </div>
+                <div class="quiz-questions" id="quiz-questions"></div>
+                <div class="quiz-submit-area">
+                    <button class="btn btn-primary btn-lg" id="quiz-submit-btn" disabled>
+                        Submit Quiz (0/0 answered)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Results area -->
+            <div id="quiz-results-area" style="display:none;">
+                <div class="quiz-results-card glass-card">
+                    <div class="quiz-score-section">
+                        <div class="quiz-score-ring" id="quiz-score-ring">
+                            <span class="quiz-score-num" id="quiz-score-num">0/0</span>
+                            <span class="quiz-score-pct" id="quiz-score-pct">0%</span>
+                        </div>
+                        <p class="quiz-score-comment" id="quiz-score-comment"></p>
+                    </div>
+                    <button class="btn btn-primary" id="quiz-retry-btn">
+                        <i class="fas fa-redo"></i> Take Another Quiz
+                    </button>
+                </div>
+
+                <div class="quiz-review-section">
+                    <h3><i class="fas fa-search"></i> Answer Review</h3>
+                    <div id="quiz-review"></div>
+                </div>
+            </div>
+
+            <!-- History section -->
+            <div class="quiz-history" id="quiz-history-area">
+                <h3><i class="fas fa-history"></i> Quiz History</h3>
+                <div id="quiz-history-list">
+                    <div class="empty-state">
+                        <i class="fas fa-trophy"></i>
+                        <p>No quiz history yet. Take your first quiz!</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════════════════ FLASHCARDS PAGE ═══════════════════ -->
+        <section class="page" id="page-flashcards">
+            <div class="page-header">
+                <h1><i class="fas fa-layer-group"></i> Flashcards</h1>
+            </div>
+
+            <!-- Generate section -->
+            <div class="flashcard-generate glass-card">
+                <h3><i class="fas fa-magic"></i> Generate Flashcards</h3>
+                <div class="generate-form">
+                    <input type="text" id="fc-topic-input"
+                        placeholder="Enter a topic (e.g., Photosynthesis, World War II)">
+                    <div class="generate-options">
+                        <label>
+                            <span>Cards:</span>
+                            <select id="fc-count">
+                                <option value="5">5</option>
+                                <option value="10" selected>10</option>
+                                <option value="15">15</option>
+                                <option value="20">20</option>
+                            </select>
+                        </label>
+                        <button class="btn btn-primary" id="fc-generate-btn">
+                            <i class="fas fa-sparkles"></i> Generate
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Deck viewer (hidden until a deck is selected) -->
+            <div class="flashcard-viewer" id="flashcard-viewer" style="display:none;">
+                <div class="fc-header">
+                    <button class="btn btn-ghost" id="fc-back-btn"><i class="fas fa-arrow-left"></i> Back</button>
+                    <h3 id="fc-deck-title"></h3>
+                    <div class="fc-controls">
+                        <button class="btn btn-ghost" id="fc-export-btn" title="Export deck"><i
+                                class="fas fa-download"></i></button>
+                    </div>
+                </div>
+
+                <div class="fc-card-area">
+                    <div class="fc-card" id="fc-card">
+                        <div class="fc-card-inner" id="fc-card-inner">
+                            <div class="fc-card-front">
+                                <span class="fc-label">Question</span>
+                                <p id="fc-question"></p>
+                            </div>
+                            <div class="fc-card-back">
+                                <span class="fc-label">Answer</span>
+                                <p id="fc-answer"></p>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="fc-flip-hint">Click the card or press <kbd>Space</kbd> to flip</p>
+                </div>
+
+                <div class="fc-navigation">
+                    <button class="btn btn-ghost" id="fc-prev"><i class="fas fa-chevron-left"></i> Previous</button>
+                    <span class="fc-counter" id="fc-counter">1 / 10</span>
+                    <button class="btn btn-ghost" id="fc-next">Next <i class="fas fa-chevron-right"></i></button>
+                </div>
+
+                <div class="fc-progress">
+                    <div class="fc-progress-bar" id="fc-progress-bar"></div>
+                </div>
+            </div>
+
+            <!-- Deck list -->
+            <div class="flashcard-decks" id="flashcard-decks-area">
+                <h3><i class="fas fa-list"></i> Your Decks</h3>
+                <div class="decks-list" id="decks-list">
+                    <div class="empty-state">
+                        <i class="fas fa-layer-group"></i>
+                        <p>No flashcard decks yet. Generate one above!</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Toast notification container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- Loading overlay -->
+    <div class="loading-overlay" id="loading-overlay" style="display:none;">
+        <div class="spinner"></div>
+        <p id="loading-text">Processing...</p>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/js/api.js?v=2"></script>
+    <script src="/js/chat.js?v=2"></script>
+    <script src="/js/upload.js?v=2"></script>
+    <script src="/js/scraper.js?v=2"></script>
+    <script src="/js/flashcards.js?v=2"></script>
+    <script src="/js/quiz.js?v=2"></script>
+    <script src="/js/app.js?v=2"></script>
+</body>
+
+</html>

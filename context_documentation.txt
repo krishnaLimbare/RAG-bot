@@ -1,0 +1,149 @@
+# RAG-Bot Project Context & Documentation
+
+This document provides a comprehensive overview of the StudyBot (RAG-bot) project. It is intended to serve as the detailed context needed for project documentation, covering the architecture, features, technology stack, and a step-by-step guide on deploying this application on a Raspberry Pi.
+
+## 1. Project Overview
+StudyBot is an AI-powered study assistant designed to help users learn effectively. It leverages Retrieval-Augmented Generation (RAG) to allow users to interact with their study materials, perform web research, and automatically generate flashcards for active recall.
+
+## 2. Core Features
+- **Document Upload & Processing**: Users can upload PDF documents. The system extracts text (using PyMuPDF and Tesseract OCR for scanned images), chunks the content, and generates embeddings.
+- **Study Chat (RAG)**: A conversational interface allowing users to ask questions based on the uploaded documents. It features three distinct modes:
+  - *Explain*: Breaks down complex topics into understandable concepts.
+  - *Quiz*: Tests the user's knowledge based on the material.
+  - *Summarize*: Provides concise overviews of large text sections.
+- **Web Research**: Utilizes `crawl4ai` and DuckDuckGo to search the web for missing or additional context and integrates it into the local knowledge base.
+- **Flashcard Generation & Export**: Automatically creates Anki-compatible flashcard decks from the document content or specific topics. Includes flip animations, keyboard navigation (left/right arrows, space to flip), and a direct JSON export feature.
+
+## 3. Technology Stack
+The application is structured into a distinct frontend (SPA) and backend (API).
+
+**Frontend:**
+- **Languages**: Vanilla HTML, CSS, JavaScript
+- **Design Paradigm**: Dark glassmorphism, Single Page Application (SPA)
+- **Key Modules**: UI interactions, API communication, Chat rendering, File uploading, and Flashcard Deck viewer.
+
+**Backend:**
+- **Framework**: FastAPI (Python >= 3.11)
+- **LLM Provider**: Groq (Llama 3.3 70B `llama-3.3-70b-versatile` for fast inference)
+- **Embeddings**: Voyage AI (`voyage-3` model)
+- **Vector Database**: MongoDB Atlas (leveraging `$vectorSearch` for semantic retrieval)
+- **Web Scraping**: `crawl4ai` integrated with DuckDuckGo
+- **PDF Processing**: PyMuPDF (`fitz`) coupled with Tesseract OCR (`pytesseract`)
+- **Orchestration**: LangChain for chaining RAG sequences and managing LLM interactions.
+
+## 4. Project Structure
+```text
+RAG-bot/
+├── backend/
+│   ├── main.py              # Entry point: FastAPI app & route definitions
+│   ├── config.py            # Environment & Settings loader (Pydantic BaseSettings)
+│   ├── models.py            # Pydantic schemas for request/response validation
+│   ├── db/
+│   │   └── mongodb.py       # MongoDB connection and indexing handler
+│   └── services/
+│       ├── embedding.py     # PDF processing -> Text Chunking -> Embeddings creation
+│       ├── retriever.py     # MongoDB Vector search retriever logic
+│       ├── llm.py           # Groq LLM wrapper/integration
+│       ├── rag.py           # Core RAG chain orchestrator 
+│       ├── scraper.py       # Web scraping and research utility
+│       └── flashcards.py    # Flashcard generation logic via LLM
+├── frontend/
+│   ├── index.html           # Main Application shell 
+│   ├── login.html           # Authentication UI
+│   ├── css/
+│   │   └── styles.css       # Design system and glassmorphism UI rules
+│   └── js/                  # Client-side scripts (api, chat, upload, scraper, flashcards)
+├── .env                     # Environment variables (MongoDB, Groq, Voyage API keys)
+└── pyproject.toml           # Python dependencies and project metadata
+```
+
+## 5. Deployment on Raspberry Pi
+
+Deploying this FastAPI + Vanilla JS application on a Raspberry Pi involves setting up the Python environment, configuring system processes, and (optionally) exposing it securely.
+
+### Prerequisites (Raspberry Pi OS - Debian based)
+1. **OS**: Raspberry Pi OS (64-bit recommended for compiling some Python packages like PyMuPDF and cryptography).
+2. **System Packages**: 
+   Since the app uses OCR and PDF parsing, install system-level dependencies:
+   ```bash
+   sudo apt update && sudo apt upgrade -y
+   sudo apt install -y python3-pip python3-venv tesseract-ocr libtesseract-dev build-essential mupdf mupdf-tools
+   ```
+
+### Step 1: Clone the Repository and Setup Environment
+```bash
+git clone <your-repo-url> RAG-bot
+cd RAG-bot
+
+# Create and activate a virtual environment
+python3 -m venv .venv
+source .venv/bin/activate
+
+# Install dependencies
+pip install -e .
+```
+
+### Step 2: Configure Environment Variables
+Create a `.env` file in the `RAG-bot` root directory:
+```bash
+nano .env
+```
+Populate it with your actual production keys:
+```env
+MONGODB_URI="your-mongodb-atlas-uri"
+VOYAGE_API_KEY="your-voyage-key"
+GROQ_API_KEY="your-groq-key"
+GROQ_MODEL="llama-3.3-70b-versatile"
+```
+
+### Step 3: Configure MongoDB Vector Index
+Make sure your MongoDB Atlas cluster has a vector search index created. The index should target the `studybot` database, `text_chunks` collection, and focus on the `embedding` field. The backend code expects this to be named `vector_index`.
+
+### Step 4: Run as a Systemd Service (Daemon)
+To ensure the StudyBot runs in the background and starts automatically on Pi reboots, configure a Systemd service.
+
+1. **Create the service file**:
+   ```bash
+   sudo nano /etc/systemd/system/ragbot.service
+   ```
+
+2. **Add the following configuration** (Adjust `/home/pi/RAG-bot` to your actual path):
+   ```ini
+   [Unit]
+   Description=StudyBot FastAPI Server
+   After=network.target
+
+   [Service]
+   User=pi
+   Group=pi
+   WorkingDirectory=/home/pi/RAG-bot
+   Environment="PATH=/home/pi/RAG-bot/.venv/bin"
+   # Start the uvicorn server on port 8000, bound to all interfaces
+   ExecStart=/home/pi/RAG-bot/.venv/bin/python -m uvicorn backend.main:app --host 0.0.0.0 --port 8000
+   Restart=always
+   RestartSec=3
+
+   [Install]
+   WantedBy=multi-user.target
+   ```
+
+3. **Enable and Start the Service**:
+   ```bash
+   sudo systemctl daemon-reload
+   sudo systemctl enable ragbot
+   sudo systemctl start ragbot
+   sudo systemctl status ragbot # Check for active (running)
+   ```
+
+### Step 5: Network Access & Reverse Proxy (Optional but Recommended)
+By default, the app is accessible on the Pi's local IP: `http://<raspberry-pi-ip>:8000`.
+
+To expose this safely or serve via port 80:
+- **Cloudflare Tunnels (Recommended for external access)**:
+  Install `cloudflared` on the Pi and route traffic from a custom domain directly to `http://localhost:8000`. This bypasses the need for port forwarding on your home router.
+- **Nginx (For local Network Port 80)**:
+  Install Nginx (`sudo apt install nginx`), and proxy `localhost:80` to `localhost:8000`.
+
+### Potential Raspberry Pi Limitations to Note
+- **Vector Embedding/LLM Inference**: The actual heavy lifting (LLM and Embeddings) is offloaded to Groq and Voyage API, respectively, meaning the Raspberry Pi's CPU/RAM will not be a bottleneck for AI tasks.
+- **OCR Processing**: `pytesseract` runs *locally*. If processing highly graphical or massive PDFs, the Raspberry Pi might experience heavy CPU usage during the "Upload & Process" phase.

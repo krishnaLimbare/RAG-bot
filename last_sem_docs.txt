@@ -1,0 +1,497 @@
+Project Report
+On
+Study-BOT
+By
+Krishna Limbare
+Under the Guidance of
+Dr. Uma Patil
+Master of Computer Applications
+
+P.E Society’s
+Modern Institute of Business Studies,Nigdi
+Pune- 411044
+2025-2026
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                Certificate
+
+
+This is to certify that the Online Job Training (OJT-2441) entitled Study-Bot  is submitted by Krishna Sameer Limbare a bonafide student of this institute, studying for a Master of Computer Application, has successfully carried out MCA semester-IV. This project report is submitted in partial fulfilment of the M.C.A. Semester IV Academic Year 2025-26 curriculum as per the Institute norms.
+
+
+
+
+Dr. Maithili Arjunwadkar                   Project Guide	          External Examiner              Director
+       PES MIBS
+
+
+DECLARATION
+
+I, the undersigned, solemnly declare that the report of the project work entitled Study-Bot is based on my own work carried out during the course of my study under the supervision of Dr. Uma Patil. I assert that the statements made and conclusions drawn are an outcome of the project work.
+I further declare that to the best of my knowledge and belief, the project report does not contain any part of any work which has been submitted for the award of any other degree/diploma/certificate in this Institute or University or any other University.
+                                                                          	  
+        Signature of Student
+                                                                                                     	                     
+Name : Krishna Sameer Limbare
+Date:
+Place:
+                             ACKNOWLEDGEMENT
+
+          It is my proud privilege to express my profound gratitude to the entire management of Progressive Education Society’s Modern Institute of Business Studies (Autonomous) and Faculty members of the institute for providing me with the opportunity to avail the excellent facilities and infrastructure of the institute. The knowledge and values inculcated have proved to be of immense help to my career.
+         I am grateful to Prof. Dr. Maithili Arjunwadkar (Director, MIBS) for their astute guidance, constant encouragement and sincere support.
+         I express my sincere gratitude to Dr. Uma Patil, MIBS for their inspiration, constructive suggestion, mastermind analysis and affectionate guidance in my work, without which this project work completion would have been impossible for me. Sincere thanks to all my seniors and colleagues at the company for their support and assistance throughout the project.	
+         I would like to thank all the faculty for providing me with an opportunity to pursue my industrial training, as it is an important part of the MCA course.
+
+                         Index
+
+
+ 
+1. INTRODUCTION
+
+1.2 Abstract
+StudyBot is an AI-powered study assistant designed to enhance the learning process through an interactive "Study Chat" interface. It utilizes Retrieval-Augmented Generation (RAG), allowing users to upload personal study materials and interact with them using advanced Large Language Models (LLMs). Beyond simple document Q&A, the system features automated OCR for scanned PDFs, integrated web research capabilities, and the generation of Anki-compatible flashcards for active recall. The project is deployed on a Raspberry Pi, demonstrating that complex AI orchestration can be managed on low-power edge devices by offloading heavy inference to specialized cloud APIs.
+
+1.3 Existing System and Need for System
+
+Current study methods often rely on static reading of PDFs or manual note-taking, which lacks interactivity and real-time clarification. While general-purpose AI tools exist, they often lack the "grounding" provided by a user's specific textbooks or local notes. StudyBot fills this gap by ensuring all AI responses are grounded in the user's uploaded documents while offering specialized modes like "Explain," "Quiz," and "Summarize".
+
+1.4 Scope of System
+
+Document Management: Automated text extraction from digital and scanned PDFs using PyMuPDF and Tesseract OCR.
+Contextual Chat: Intelligent retrieval and generation using LangChain to answer questions based on specific study materials.
+Web-Augmented Research: Ability to search the web using crawl4ai and DuckDuckGo when local documents lack sufficient information.
+Active Recall Tools: Automatic creation of flashcards with interactive flip animations and JSON export functionality.
+Edge Deployment: A fully functional local server environment hosted on a Raspberry Pi.
+
+1.5 Brief Description of Technology Used
+
+Backend: FastAPI (Python) for building high-performance APIs.
+LLM & Embeddings: Groq (Llama 3.3 70B) for fast text generation and Voyage AI for high-quality semantic embeddings.
+Vector Database: MongoDB Atlas using $vectorSearch for retrieving relevant document chunks.
+Frontend: Vanilla HTML, CSS (Dark Glassmorphism), and JavaScript.
+
+
+1.6 Operating Systems Used
+
+Development Environment: Windows (used on the personal laptop for writing the code, preliminary testing, and configuring the RAG bot before deployment).
+Production/Deployment Environment: Raspberry Pi OS (Debian-based) running on the Raspberry Pi.
+
+
+2. PROPOSED SYSTEM.
+
+2.1 Study of Similar Systems
+
+Modern educational tools often fall into two categories: general-purpose AI chat interfaces (like ChatGPT) or dedicated study aids (like Anki or Quizlet). While these systems are powerful, they present specific limitations that the proposed system, StudyBot, aims to overcome:
+Contextual Limitation: General AI models often lack direct, grounded access to a user's specific, local textbooks without manual copy-pasting.
+Manual Effort: Tools like Anki require students to manually create flashcards, which is a time-consuming process.
+Feature Fragmentation: Students often have to switch between different platforms for document reading, web research, and testing themselves.
+StudyBot bridges these gaps by combining Retrieval-Augmented Generation (RAG) with automated active recall tools in a single interface.
+
+
+
+2.2 Feasibility Study
+
+The feasibility of deploying StudyBot on a Raspberry Pi was evaluated across three main dimensions:
+Technical Feasibility: By utilizing Groq for LLM inference and Voyage AI for embeddings, the system offloads the heaviest computational tasks to the cloud. This ensures that the Raspberry Pi’s CPU and RAM are not bottlenecks for high-speed AI tasks.
+Economic Feasibility: The project uses a low-cost Raspberry Pi and leverages efficient APIs like the llama-3.3-70b-versatile model, which provides fast inference without the need for expensive local GPU hardware.
+Operational Feasibility: The use of a Single Page Application (SPA) with a dark glassmorphism design ensures that the interface is modern, lightweight, and easy for students to navigate.
+
+
+2.3 Objectives of Proposed System
+The primary objective of StudyBot is to provide an all-in-one AI study assistant that maximizes learning efficiency. Specific goals include:
+Interactive Learning: Allowing users to interact directly with their study materials through a conversational RAG interface.
+Automated Processing: Extracting text from digital and scanned PDFs automatically using PyMuPDF and Tesseract OCR.
+Specialized Study Modes: Offering three distinct modes—Explain for clarity, Quiz for self-assessment, and Summarize for brevity.
+Active Recall: Automatically generating Anki-compatible flashcards to help students memorize material effectively.
+Comprehensive Research: Integrating web search via DuckDuckGo to provide context that may be missing from local documents.
+
+
+2.4 Users of System
+StudyBot is designed for a variety of users within the educational and professional sectors:
+Students: Individuals looking to master complex textbooks and automate the creation of study materials.
+Researchers: Those who need to quickly extract and summarize information from large volumes of PDF documentation.
+Self-Learners: Users who require an interactive tool to explain difficult concepts and verify their knowledge through quizzes.
+
+
+
+
+
+
+3. ANALYSIS AND  DESIGN
+
+3.1 Technical Requirements – H/W, S/W
+
+To successfully deploy and run StudyBot as an IoT-based edge server, the following requirements must be met:
+Hardware Requirements:
+Processor: Raspberry Pi (64-bit architecture is recommended for compatibility with specific Python libraries like cryptography and PyMuPDF).
+Memory: Sufficient RAM to handle local OCR processing (Tesseract) without significant lag.
+Storage: MicroSD card with Raspberry Pi OS installed.
+Connectivity: Stable internet connection to communicate with Groq and Voyage AI cloud APIs.
+Software Requirements:
+Operating System: Raspberry Pi OS (Debian-based).
+System Packages: python3-pip, python3-venv, tesseract-ocr, libtesseract-dev, build-essential, mupdf, and mupdf-tools.
+Backend Framework: FastAPI (running on Python >= 3.11).
+Orchestration: LangChain for managing RAG sequences.
+Database: MongoDB Atlas for vector storage and semantic retrieval
+
+
+3.2 System Architecture / Block Diagram
+
+
+
+
+
+3.3 System Hardware Details
+
+While StudyBot is a software-heavy application, the hardware choice is critical for its "IoT" classification:
+Edge Computing: The Raspberry Pi serves as a local host, ensuring the application is accessible within a local network (e.g., http://<raspberry-pi-ip>:8000).
+Local Processing: Tasks such as PDF text extraction and OCR (Optical Character Recognition) via pytesseract are performed locally on the Pi's CPU.
+API Offloading: To prevent the Pi from overheating or slowing down during heavy AI tasks, LLM inference (Groq) and vector embedding (Voyage AI) are offloaded to external servers
+
+3.4 Raspberry  Pi System Connection Diagrams
+
+3.5 Interface Diagrams
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+3.6 Design Sequence
+
+
+
+
+
+
+The development of StudyBot followed a systematic sequence:
+Environment Setup: Installing system-level dependencies for OCR and PDF parsing on the Pi.
+API Integration: Configuring .env files with keys for MongoDB, Groq, and Voyage AI.
+Backend Development: Writing service modules for embedding, retrieval, and RAG orchestration using LangChain.
+Frontend Design: Building the SPA using Vanilla JS and CSS for a lightweight, fast-loading experience.
+Deployment: Configuring a Systemd service to allow the application to run as a background daemon and start automatically on reboot.
+
+3.7 System Software Details
+
+The backend is structured into modular services to ensure maintainability:
+main.py: The entry point that defines the FastAPI application and API routes.
+embedding.py: Handles the pipeline of PDF processing, text chunking, and embedding creation.
+retriever.py: Contains the logic for searching MongoDB Atlas using vector embeddings.
+rag.py: The core orchestrator that chains the retriever and LLM together.
+flashcards.py: A specialized service that uses the LLM to generate study aids from document context.
+
+3.8 Process / System Flowchart
+
+
+
+
+Process Path:
+User uploads a PDF.
+System extracts text; if the PDF is scanned, Tesseract OCR is triggered locally.
+Text is "chunked" into smaller segments.
+Voyage AI generates embeddings for each chunk.
+Chunks and vectors are stored in MongoDB Atlas.
+User asks a question; system performs a Vector Search to find relevant chunks.
+Groq LLM generates a natural language response based on the found context
+
+4.CODING
+
+4.1 Algorithm
+
+The core functionality of StudyBot is driven by the Retrieval-Augmented Generation (RAG) algorithm, which follows a structured sequence to process documents and generate intelligent responses.
+The RAG Pipeline Logic:
+Document Ingestion: The system uses PyMuPDF to extract raw text from uploaded PDF files.
+OCR Processing: If a document contains scanned images or non-selectable text, Tesseract OCR is triggered locally on the Raspberry Pi to perform character recognition.
+Text Chunking: Extracted text is broken down into smaller, manageable "chunks" to ensure high-quality retrieval and stay within LLM context limits.
+Vector Embedding: Each text chunk is sent to Voyage AI (specifically the voyage-3 model) to be converted into a high-dimensional numerical vector.
+Storage: These vectors, along with their corresponding text segments, are stored in a MongoDB Atlas collection.
+Semantic Retrieval: When a user submits a query, the system generates an embedding for that query and performs a vector search in MongoDB to find the most relevant document chunks.
+Response Generation: The retrieved context and the original user query are sent to the Groq LLM (Llama 3.3 70B), which generates a grounded, natural language response.\
+
+4.2 Code Snippets 
+
+import logging
+import os
+import tempfile
+from pathlib import Path
+from typing import Optional
+
+from fastapi import FastAPI, UploadFile, File, HTTPException, Depends, Header
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
+
+from backend.models import (
+    ChatRequest,
+    ChatResponse,
+    ScrapeRequest,
+    ScrapeResponse,
+    AddToKnowledgeBaseRequest,
+    FlashcardGenerateRequest,
+    SignupRequest,
+    LoginRequest,
+    AuthResponse,
+    QuizGenerateRequest,
+    QuizSubmitRequest,
+)
+from backend.services.rag import StudyRAG
+from backend.services.embedding import EmbeddingService
+from backend.services.scraper import WebScraper
+from backend.services.flashcards import FlashcardService
+from backend.services.auth import AuthService
+from backend.services.quiz import QuizService
+from backend.db.mongodb import MongoDB
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logger = logging.getLogger(__name__)
+
+
+app = FastAPI(title="StudyBot API", version="2.0.0")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+        
+
+_rag: StudyRAG | None = None
+_embedding: EmbeddingService | None = None
+_scraper: WebScraper | None = None
+_flashcards: FlashcardService | None = None
+_auth: AuthService | None = None
+_quiz: QuizService | None = None
+_db: MongoDB | None = None
+
+def get_rag() -> StudyRAG:
+    global _rag
+    if _rag is None:
+        _rag = StudyRAG()
+    return _rag
+
+def get_embedding() -> EmbeddingService:
+    global _embedding
+    if _embedding is None:
+        _embedding = EmbeddingService()
+    return _embedding
+
+def get_scraper() -> WebScraper:
+    global _scraper
+    if _scraper is None:
+        _scraper = WebScraper()
+    return _scraper
+
+def get_flashcards() -> FlashcardService:
+    global _flashcards
+    if _flashcards is None:
+        _flashcards = FlashcardService()
+    return _flashcards
+
+def get_auth() -> AuthService:
+    global _auth
+    if _auth is None:
+        _auth = AuthService()
+    return _auth
+
+def get_quiz() -> QuizService:
+    global _quiz
+    if _quiz is None:
+        _quiz = QuizService()
+    return _quiz
+
+def get_db() -> MongoDB:
+    global _db
+    if _db is None:
+        _db = MongoDB()
+    return _db
+
+
+def get_current_user(authorization: Optional[str] = Header(None)) -> dict:
+    """Extract user info from JWT token in Authorization header."""
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    token = authorization.split(" ", 1)[1]
+    auth = get_auth()
+    user = auth.get_user_from_token(token)
+    if not user:
+        raise HTTPException(status_code=401, detail="Invalid or expired token")
+    return user
+
+
+@app.get("/api/health")
+async def health():
+    return {"status": "ok", "service": "StudyBot"}
+
+
+@app.post("/api/auth/signup")
+async def signup(req: SignupRequest):
+    try:
+        auth = get_auth()
+        result = auth.signup(req.email, req.password, req.name)
+        return result
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        logger.error(f"Signup error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/auth/login")
+async def login(req: LoginRequest):
+    try:
+        auth = get_auth()
+        result = auth.login(req.email, req.password)
+        return result
+    except ValueError as e:
+        raise HTTPException(status_code=401, detail=str(e))
+    except Exception as e:
+        logger.error(f"Login error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/auth/me")
+async def get_me(user: dict = Depends(get_current_user)):
+    return {"user_name": user["name"], "user_email": user["email"]}
+
+
+@app.get("/api/chat/history")
+async def get_chat_history_sidebar(user: dict = Depends(get_current_user)):
+    try:
+        db = get_db()
+        return db.get_chat_sessions_list(user["user_id"])
+    except Exception as e:
+        logger.error(f"Chat history fetch error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/chat/thread")
+async def get_chat_thread(session_id: str = "default", user: dict = Depends(get_current_user)):
+    try:
+        db = get_db()
+        return db.get_chat_history(user["user_id"], limit=50, session_id=session_id)
+    except Exception as e:
+        logger.error(f"Chat thread fetch error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+5. TESTING
+
+5.1 Results Reports
+
+The testing phase confirmed that the StudyBot application successfully initializes and operates on the Raspberry Pi environment. Upon starting the ragbot.service, the system status was verified as "active (running)," ensuring the FastAPI server is listening on port 8000. The application was successfully accessed via the https://propitiously-agley-kevin.ngrok-free.dev/login
+
+Preliminary results indicate:
+API Connectivity: Near-instant communication with Groq and Voyage AI APIs was achieved, confirming that external inference offloading prevents hardware bottlenecks on the Pi.
+Service Stability: The Systemd configuration successfully restarts the application automatically in the event of a failure.
+OCR Performance: Local OCR processing using Tesseract was functional, though it resulted in higher CPU utilization as expected during the processing of dense PDF documents
+
+5.2 Test Cases
+
+The following test cases were executed to validate the core functionality of the system:
+
+5.3 Acceptance Test Plan
+The acceptance criteria for the StudyBot project focus on three main pillars:
+Functional Accuracy: The system must provide grounded answers based specifically on the uploaded context without hallucination.
+Performance on Edge: The Raspberry Pi must handle the web server and local OCR tasks without system crashes.
+User Experience: The dark glassmorphism interface must remain responsive, and flashcard interactions (keyboard navigation) must function seamlessly.
+
+
+
+5.4 Test Report In IEEE Format
+
+1. Introduction: This report summarizes the testing activities for StudyBot (RAG-bot). 
+2. Test Items: FastAPI Backend, Vanilla JS Frontend, MongoDB Atlas Vector Search, and local Tesseract OCR
+. 3. Summary of Results: All functional test cases (TC-01 through TC-06) passed. Performance testing identified high CPU usage during OCR, which was mitigated by the offloading of LLM tasks.
+ 4. Comprehensive Conclusions: The application is fit for deployment as a local study assistant on Raspberry Pi hardware
+
+
+6. LIMITATION OF PROPOSED SYSTEM
+
+Hardware Bottlenecks: While LLM tasks are offloaded, the local OCR processing (using Tesseract) runs directly on the Raspberry Pi's CPU. Processing large or highly graphical PDFs can cause significant CPU spikes and temporary system slowdowns.
+Internet Dependency: The system's intelligence relies on Groq and Voyage AI APIs. Without a stable internet connection, the RAG chain and embedding generation will fail.
+API Quotas: Since the system uses external providers (Groq, Voyage, MongoDB Atlas), it is subject to the rate limits and usage quotas of those specific services.
+Retrieval Window: The effectiveness of the "Study Chat" depends on the quality of the initial text chunking and the limited context window of the LLM.
+
+7. PROPOSED ENHANCEMENTS
+
+Local LLM Integration: Future versions could explore using Ollama or LocalAI to run smaller models (like Llama 3 8B) entirely on the Raspberry Pi 5 (8GB) to remove internet dependency.
+Expanded File Support: Enhancing the ingestion engine to support .docx, .txt, and .pptx files in addition to standard PDFs.
+Multi-User Authentication: Implementing a robust user management system beyond the basic login.html shell to allow multiple students to maintain separate knowledge bases.
+Mobile Companion App: Developing a dedicated mobile interface or wrapper to make the StudyBot accessible for on-the-go learning.
+Advanced Vector Indexing: Fine-tuning the MongoDB Atlas $vectorSearch parameters or implementing "Hybrid Search" (combining keyword and semantic search) for even higher retrieval accuracy.
+
+Chapter 8: Conclusion
+
+The StudyBot project successfully establishes a comprehensive, AI-powered study assistant designed to optimize the learning process through advanced technology integration. By utilizing a Retrieval-Augmented Generation (RAG) framework, the system provides a specialized interface where users can interact with their own study materials, ask clarifying questions, and receive grounded, accurate responses. This project highlights the successful orchestration of a complex backend using FastAPI and LangChain, paired with a modern, dark glassmorphism-inspired Single Page Application (SPA) frontend.
+Throughout the development and deployment of StudyBot, several significant technical and functional accomplishments were achieved:
+Edge Computing Deployment: The application was successfully deployed on a Raspberry Pi, proving that sophisticated AI systems can be hosted as local edge servers within a home or campus network.
+Hybrid Processing Model: By offloading heavy LLM inference to Groq and vector embeddings to Voyage AI, the system effectively bypasses the hardware limitations of the Raspberry Pi for high-intensity AI tasks.
+Automated Study Tools: The system successfully automates the creation of active recall tools by generating Anki-compatible flashcards directly from document context.
+OCR Integration: The inclusion of local Tesseract OCR ensures that the assistant remains functional even when processing scanned or non-digital PDF documents.
+Multimodal Study Assistance: The implementation of distinct modes—Explain, Quiz, and Summarize—provides a versatile environment tailored to different learning needs.
+Ultimately, StudyBot serves as a robust proof-of-concept for the future of personalized education tools. It demonstrates that by combining lightweight local hardware with powerful cloud-based AI APIs, it is possible to create a low-cost, high-performance study environment that is both private and highly effective. The project effectively meets the requirements for a final semester IoT/Embedded systems project by showcasing full-stack development, hardware deployment on a Raspberry Pi, and state-of-the-art AI integration.
+
+
+
+Chapter 9: Bibliography
+The following resources and documentation were utilized for the development, implementation, and deployment of the StudyBot (RAG-bot) project:
+Tiangolo, S. (2026). FastAPI official documentation. FastAPI. https://fastapi.tiangolo.com/
+Groq Inc. (2026). Groq cloud documentation (Llama 3.3 70B). Groq Cloud. https://console.groq.com/docs/models
+Voyage AI. (2026). Voyage AI embeddings documentation. Voyage AI. https://docs.voyageai.com
+MongoDB Inc. (2026). Atlas vector search documentation. MongoDB. https://www.mongodb.com/products/platform/atlas-vector-search
+LangChain Inc. (2026). LangChain documentation. LangChain. https://python.langchain.com/docs/get_started/introduction
+Artifex Software, Inc. (2026). PyMuPDF (fitz) documentation. Read the Docs. https://pymupdf.readthedocs.io/
+Smith, R. (2026). Tesseract OCR official repository. GitHub. https://github.com/tesseract-ocr/tesseract
+Raspberry Pi Foundation. (2026). Raspberry Pi OS documentation. Raspberry Pi. https://www.raspberrypi.com/documentation/computers/os.html
+Crawl4AI. (2026). Crawl4AI documentation. Crawl4AI. https://docs.crawl4ai.com/
+Sommerville, I. (2015). Software engineering (10th ed.). Pearson Education.
+Pressman, R. S. (2019). Software engineering: A practitioner’s approach (9th ed.). McGraw-Hill.
+GeeksforGeeks. (2026). Python and artificial intelligence tutorials. GeeksforGeeks. https://www.geeksforgeeks.org/
+W3Schools. (2026). Web development tutorials (HTML, CSS, JavaScript). W3Schools. https://www.w3schools.com/
+
+
+
+
+
+.
+
+
+
+

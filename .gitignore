@@ -1,0 +1,42 @@
+# ── Environment & Secrets ────────────────────────────
+.env
+.env.*
+!.env.example
+
+# ── Python ───────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+*.egg
+
+# ── Virtual Environment ──────────────────────────────
+.venv/
+venv/
+ENV/
+
+# ── uv ───────────────────────────────────────────────
+uv.lock
+
+# ── IDE ──────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# ── Scraped data ─────────────────────────────────────
+ExtractionTool/
+
+# ── Temp files ───────────────────────────────────────
+temp_uploads/
+*.tmp
+*.log
+
+# ── OS ───────────────────────────────────────────────
+Thumbs.db
+.DS_Store
